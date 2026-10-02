@@ -512,6 +512,19 @@ void HalProxy::initializeSensorList() {
                   mSubHalList[subHalIndex]->getName().c_str());
         }
     }
+
+    // Without a wrist tilt sensor, pick up off the wakeup tilt detector.
+    for (const auto& [handle, sensor] : mSensors) {
+        if (sensor.type == V2_1::SensorType::PICK_UP_GESTURE) return;
+    }
+    for (auto& [handle, sensor] : mSensors) {
+        if (sensor.type == V2_1::SensorType::TILT_DETECTOR &&
+            (sensor.flags & V1_0::SensorFlagBits::WAKE_UP) != 0) {
+            sensor.type = V2_1::SensorType::PICK_UP_GESTURE;
+            sensor.typeAsString = SENSOR_STRING_TYPE_PICK_UP_GESTURE;
+            break;
+        }
+    }
 }
 
 void* HalProxy::getHandleForSubHalSharedObject(const std::string& filename) {
