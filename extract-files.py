@@ -146,10 +146,19 @@ blob_fixups: blob_fixups_user_type = {
         'vendor/lib64/libsns_direct_channel_stub.so',
         'vendor/lib64/libsnsdiaglog.so',
         'vendor/lib64/libssc.so',
-        'vendor/lib64/sensors.ssc.so',
     ): blob_fixup()
         .replace_needed('libprotobuf-cpp-lite-21.7.so', 'libprotobuf-cpp-lite-21.12.so')
         .replace_needed('libsnsapi.so', 'libsnsapi_v2.so'),
+    (
+        'vendor/lib64/libsns_direct_channel_stub-pong.so',
+        'vendor/lib64/libsnsdiaglog-pong.so',
+        'vendor/lib64/libssc-pong.so',
+        'vendor/lib64/sensors.ssc.so',
+    ): blob_fixup()
+        .fix_soname()
+        .replace_needed('libsns_direct_channel_stub.so', 'libsns_direct_channel_stub-pong.so')
+        .replace_needed('libsnsdiaglog.so', 'libsnsdiaglog-pong.so')
+        .replace_needed('libssc.so', 'libssc-pong.so'),
     'vendor/lib64/libsnsapi_v2.so': blob_fixup()
         .replace_needed('libprotobuf-cpp-lite-21.7.so', 'libprotobuf-cpp-lite-21.12.so')
         .fix_soname(),

@@ -964,13 +964,18 @@ vendor/etc/init/vendor.sensors.sscrpcd.rc|df52901f1ad0fbc97d6070e28896a6be401548
 vendor/lib64/libsdsprpc.so|f7b35ea78045cc2b864a60fdd0c368b41faec930
 vendor/lib64/libssc_default_listener.so|7f6e23e755e34441606172c9cac1358996fecdea
 
+# Sensors HAL - stock, for its tilt to wake; its libraries renamed to sit beside Ingot's
+vendor/lib64/libsns_direct_channel_stub.so:vendor/lib64/libsns_direct_channel_stub-pong.so
+vendor/lib64/libsnsdiaglog.so:vendor/lib64/libsnsdiaglog-pong.so
+vendor/lib64/libssc.so:vendor/lib64/libssc-pong.so
+vendor/lib64/sensors.ssc.so
+
 # Sensors - from OSOM Ingot UKQ1.240227.165
 vendor/bin/sensors.qti|d260d24128dea497d9087b98cb13e654426aa49c|2b895dcc1c0801c312735df596540115373c0d0a
 vendor/lib64/libsns_direct_channel_stub.so|197cf26b65fb35cb8a1727d23b5b7c525b52e001
 vendor/lib64/libsnsapi.so:vendor/lib64/libsnsapi_v2.so|0047efb7b25d0de49e4cc861ef64c36cba338aa8|7c828ee5cf69a8eded78aec17c400956663a4198
 vendor/lib64/libsnsdiaglog.so|6073b5ab0a4e81600004afae98093bfd2a10b204|f0f92ef395743e07daf73bbe613b2634b8aaaf95
 vendor/lib64/libssc.so|9b1a6ec280390350c8cc6630bc918377355807cc|6335b50092bb8ce4d8b379c483104e28e9bd53d8
-vendor/lib64/sensors.ssc.so|51f7cc19d5498d8999833c504658c02667397625|0d5ccde68509978f74aa12826850dcb4b7f594c7
 
 # Sensors (config)
 vendor/etc/sar/sarconfig.json
