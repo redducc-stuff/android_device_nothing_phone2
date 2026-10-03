@@ -15,6 +15,7 @@
  */
 
 #include "HalProxyCallback.h"
+#include "PickupGate.h"
 
 #include <cinttypes>
 
@@ -73,11 +74,19 @@ std::vector<V2_1::Event> HalProxyCallbackBase::processEvents(const std::vector<V
                     setSubHalIndex(event.u.dynamic.sensorHandle, mSubHalIndex);
         }
         const V2_1::SensorInfo& sensor = mCallback->getSensorInfo(event.sensorHandle);
-        if (sensor.type == V2_1::SensorType::PICK_UP_GESTURE) {
-            if (event.u.scalar != 1) {
-                continue;
-            }
-            event.sensorType = sensor.type;
+        if (sensor.type == V2_1::SensorType::PICK_UP_GESTURE && event.u.scalar != 1) {
+            continue;
+        }
+        auto& gate = PickupGate::get();
+        if (event.sensorHandle == gate.pickupHandle()) {
+            auto* self = const_cast<HalProxyCallbackBase*>(this);
+            gate.setEmit([self](const V2_1::Event& pickup) {
+                self->mCallback->postEventsToMessageQueue({pickup}, 1,
+                                                          self->createScopedWakelock(true));
+            });
+        }
+        if (!gate.onEvent(event)) {
+            continue;
         }
         eventsOut.push_back(event);
         if ((sensor.flags & V1_0::SensorFlagBits::WAKE_UP) != 0) {

@@ -18,6 +18,7 @@ cc_binary {
         "service.cpp",
         "HalProxy.cpp",
         "HalProxyCallback.cpp",
+        "PickupGate.cpp",
     ],
     init_rc: ["android.hardware.sensors-service.phone2-multihal.rc"],
     vintf_fragment_modules: ["android.hardware.sensors-phone2-multihal.xml"],

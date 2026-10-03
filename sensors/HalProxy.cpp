@@ -15,6 +15,7 @@
  */
 
 #include "HalProxy.h"
+#include "PickupGate.h"
 
 #include <android/hardware/sensors/2.0/types.h>
 
@@ -161,6 +162,9 @@ Return<Result> HalProxy::setOperationMode(OperationMode mode) {
 Return<Result> HalProxy::activate(int32_t sensorHandle, bool enabled) {
     if (!isSubHalIndexValid(sensorHandle)) {
         return Result::BAD_VALUE;
+    }
+    if (!sensors::PickupGate::get().onActivate(sensorHandle, enabled)) {
+        return Result::OK;
     }
     return getSubHalForSensorHandle(sensorHandle)
             ->activate(clearSubHalIndex(sensorHandle), enabled);
@@ -517,13 +521,28 @@ void HalProxy::initializeSensorList() {
     for (const auto& [handle, sensor] : mSensors) {
         if (sensor.type == V2_1::SensorType::PICK_UP_GESTURE) return;
     }
+    int32_t pickupHandle = -1;
+    int32_t accelHandle = -1;
     for (auto& [handle, sensor] : mSensors) {
-        if (sensor.type == V2_1::SensorType::TILT_DETECTOR &&
-            (sensor.flags & V1_0::SensorFlagBits::WAKE_UP) != 0) {
+        bool wakeUp = (sensor.flags & V1_0::SensorFlagBits::WAKE_UP) != 0;
+        if (pickupHandle < 0 && sensor.type == V2_1::SensorType::TILT_DETECTOR && wakeUp) {
             sensor.type = V2_1::SensorType::PICK_UP_GESTURE;
             sensor.typeAsString = SENSOR_STRING_TYPE_PICK_UP_GESTURE;
-            break;
+            pickupHandle = handle;
+        } else if (sensor.type == V2_1::SensorType::ACCELEROMETER_UNCALIBRATED && !wakeUp) {
+            // Nobody else uses it, so the gate can run it at its own rate.
+            accelHandle = handle;
         }
+    }
+    if (pickupHandle >= 0 && accelHandle >= 0) {
+        sensors::PickupGate::get().init(
+                pickupHandle, accelHandle,
+                [this](int32_t handle, bool enabled) {
+                    getSubHalForSensorHandle(handle)->activate(clearSubHalIndex(handle), enabled);
+                },
+                [this](int32_t handle, int64_t periodNs) {
+                    getSubHalForSensorHandle(handle)->batch(clearSubHalIndex(handle), periodNs, 0);
+                });
     }
 }
 
