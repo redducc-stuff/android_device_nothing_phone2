@@ -15,6 +15,8 @@ from extract_utils.main import ExtractUtils, ExtractUtilsModule
 namespace_imports = [
     "device/nothing/phone2",
     "vendor/qcom/common/vendor/display",
+    "vendor/qcom/common/vendor/display/6.12",
+    "vendor/qcom/common/vendor/media/6.12",
     "vendor/qcom/common/vendor/perf",
     "vendor/qcom/common/vendor/qseecomd",
     "vendor/qcom/common/vendor/wlan",

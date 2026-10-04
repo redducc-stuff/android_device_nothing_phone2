@@ -177,9 +177,11 @@ PRODUCT_PACKAGES += \
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DEVICE_PATH)/configs/vintf/phone2_vendor_framework_compatibility_matrix.xml
 DEVICE_MANIFEST_FILE += $(DEVICE_PATH)/configs/vintf/manifest_cape.xml
 
+# Display
+TARGET_DISP_DIR := 6.12
+
 # Media
-PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/configs/media/init.qti.media.sh:$(TARGET_COPY_OUT_VENDOR)/bin/init.qti.media.sh
+TARGET_MEDIA_DIR := 6.12
 
 # Linker
 PRODUCT_VENDOR_LINKER_CONFIG_FRAGMENTS += \
