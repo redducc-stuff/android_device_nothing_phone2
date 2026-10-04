@@ -69,6 +69,8 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/configs/audio/microphone_characteristics.xml:$(TARGET_COPY_OUT_VENDOR)/etc/microphone_characteristics.xml \
     $(DEVICE_PATH)/configs/audio/vendor_audio_interfaces.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio/vendor_audio_interfaces.xml \
     $(DEVICE_PATH)/configs/audio/audio_module_config_primary.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio/audio_module_config_primary.xml \
+    $(DEVICE_PATH)/configs/audio/plugin_manager.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio/sku_cape/plugin_manager.xml \
+    $(DEVICE_PATH)/configs/audio/resourcemanager_waipio_qrd.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio/sku_cape/resourcemanager_waipio_qrd.xml \
     frameworks/av/services/audiopolicy/config/stub_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/stub_audio_policy_configuration.xml
 
 $(call soong_config_set_bool,android_hardware_audio,skip_speaker_layout_channel_mask_field,true)
@@ -176,6 +178,53 @@ PRODUCT_PACKAGES += \
 # Manifests
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DEVICE_PATH)/configs/vintf/phone2_vendor_framework_compatibility_matrix.xml
 DEVICE_MANIFEST_FILE += $(DEVICE_PATH)/configs/vintf/manifest_cape.xml
+
+# Audio
+# Our libmcs predates the 16.2 ar_log ABI; QACT tuning is not needed
+TARGET_AUDIO_FEATURE_MCS := false
+
+# Audio (PAL plugins)
+PRODUCT_PACKAGES += \
+    libdev_bt \
+    libdev_display \
+    libdev_dummy \
+    libdev_ec_ref \
+    libdev_ext_ec \
+    libdev_fm \
+    libdev_handset \
+    libdev_handset_mic \
+    libdev_handset_va \
+    libdev_haptics \
+    libdev_headphone \
+    libdev_headset_mic \
+    libdev_headset_va \
+    libdev_proxy \
+    libdev_speaker \
+    libdev_speaker_mic \
+    libdev_ultrasound \
+    libdev_usb \
+    libsession_agm \
+    libsession_compress \
+    libsession_compress_config \
+    libsession_pcm \
+    libsession_pcm_config \
+    libsession_voice \
+    libsession_voice_config \
+    libstream_acd \
+    libstream_asr \
+    libstream_calltranslation \
+    libstream_commonproxy \
+    libstream_compress \
+    libstream_contextproxy \
+    libstream_dummy \
+    libstream_haptics \
+    libstream_incall \
+    libstream_nontunnel \
+    libstream_pcm \
+    libstream_sensorpcmdata \
+    libstream_sensorrenderer \
+    libstream_soundtrigger \
+    libstream_ultrasound
 
 # Display
 TARGET_DISP_DIR := 6.12
