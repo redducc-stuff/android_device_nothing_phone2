@@ -233,6 +233,9 @@ TARGET_DISP_DIR := 6.12
 # Media
 TARGET_MEDIA_DIR := 6.12
 
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/configs/media/video_system_specs.json:$(TARGET_COPY_OUT_VENDOR)/etc/media_cape/video_system_specs.json
+
 # Linker
 PRODUCT_VENDOR_LINKER_CONFIG_FRAGMENTS += \
     $(DEVICE_PATH)/configs/linker.config.json
