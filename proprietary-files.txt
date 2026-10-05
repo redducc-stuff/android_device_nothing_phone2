@@ -1811,3 +1811,9 @@ vendor/etc/vintf/manifest/vendor.qti.camera.provider.xml|a9c4f3de3f7d8b0841d75e2
 vendor/lib64/camx.device-impl.so|69596cb9d17b19d702f10f5f221c3c4fc12bd8bf
 vendor/lib64/camx.provider-impl.so|3cbbb02ad6beb46bf43652efdae3801075d8b0f3
 vendor/lib64/libcamximageformatutils.so|1748a050feb507842325d954be3a64fee28cb0a0|c39823bc128cc0db1c66dee8a568bd530872ed2a
+
+# Shell temperature (virtual skin sensors)
+system_ext/bin/sltntc
+system_ext/etc/init/sltntc.rc
+system_ext/etc/sltntc/sltntc.conf
+system_ext/etc/sltntc/sltntc_SM8475.conf

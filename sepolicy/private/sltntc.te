@@ -1,0 +1,27 @@
+#
+# Copyright (C) 2026 The PenguinOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Nothing's shell temperature service: fits skin temperatures from the board thermistors and
+# feeds them to the simulated NTC zones through /proc/shell-temp
+type sltntc, domain, coredomain;
+type sltntc_exec, system_file_type, exec_type, file_type;
+type sltntc_service, service_manager_type;
+type proc_simulated_temp, fs_type, proc_type;
+
+init_daemon_domain(sltntc)
+
+binder_use(sltntc)
+add_service(sltntc, sltntc_service)
+binder_call(sltntc, system_app)
+binder_call(system_app, sltntc)
+allow sltntc dumpstate:binder transfer;
+
+hal_client_domain(sltntc, hal_health)
+
+r_dir_file(sltntc, sysfs_thermal)
+r_dir_file(sltntc, sysfs_batteryinfo)
+allow sltntc proc_simulated_temp:file rw_file_perms;
+
+get_prop(sltntc, system_prop)

@@ -1,1 +1,2 @@
 /system_ext/bin/qspmsvc    u:object_r:vendor_perfservice_exec:s0
+/system_ext/bin/sltntc    u:object_r:sltntc_exec:s0
