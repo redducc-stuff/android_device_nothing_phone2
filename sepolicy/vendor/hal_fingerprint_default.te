@@ -10,3 +10,4 @@ allow hal_fingerprint_default self:netlink_socket create_socket_perms_no_ioctl;
 rw_dir_file(hal_fingerprint_default, vendor_sysfs_fingerprint)
 
 get_prop(hal_fingerprint_default, vendor_fingerprint_prop)
+set_prop(hal_fingerprint_default, vendor_fingerprint_prop)

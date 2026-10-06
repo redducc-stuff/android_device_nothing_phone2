@@ -1,0 +1,6 @@
+#
+# Copyright (C) 2026 The PenguinOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+get_prop(cameraserver, vendor_sys_gpp_prop)

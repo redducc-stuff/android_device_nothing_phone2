@@ -1,2 +1,5 @@
 # AIDL postproc service published from the camera provider.
 add_service(hal_camera_default, vendor_hal_camera_postproc_service)
+
+# Optional QSPM hints; QTI quiets the same probe in its own domains
+dontaudit hal_camera_default vendor_hal_qspmhal_service:service_manager find;

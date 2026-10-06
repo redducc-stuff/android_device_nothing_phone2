@@ -1,0 +1,9 @@
+#
+# Copyright (C) 2026 The PenguinOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# The framework's boost and QSPM helpers probe these from every app; they're protected HALs that
+# apps aren't meant to reach, so keep the expected refusals out of the log as QTI does.
+dontaudit appdomain vendor_hal_perf2_service:service_manager find;
+dontaudit appdomain vendor_hal_qspmhal_service:service_manager find;

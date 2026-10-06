@@ -1,0 +1,7 @@
+#
+# Copyright (C) 2026 The PenguinOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Wireless charging state, which heats the back and so feeds the shell temperature fit.
+r_dir_file(sltntc, vendor_sysfs_usb_supply)

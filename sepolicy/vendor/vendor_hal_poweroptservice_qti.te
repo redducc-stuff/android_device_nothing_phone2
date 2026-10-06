@@ -1,0 +1,2 @@
+r_dir_file(vendor_hal_poweroptservice_qti, vendor_sysfs_graphics)
+binder_call(servicemanager, vendor_hal_poweroptservice_qti)

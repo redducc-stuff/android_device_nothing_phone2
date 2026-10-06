@@ -1,0 +1,2 @@
+# UFS read-ahead is labelled for QTI's init shell, but vold and init tune it too
+allow vold vendor_sysfs_sd:file w_file_perms;

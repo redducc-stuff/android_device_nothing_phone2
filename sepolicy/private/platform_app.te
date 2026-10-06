@@ -1,0 +1,8 @@
+#
+# Copyright (C) 2026 The PenguinOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# SystemUI's Bluetooth LE audio and USB webcam controls
+get_prop(platform_app, bluetooth_lea_prop)
+get_prop(platform_app, usb_uvc_enabled_prop)

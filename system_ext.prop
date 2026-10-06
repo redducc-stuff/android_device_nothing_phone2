@@ -1,3 +1,7 @@
+# Activity trigger: its QSPM client needs a qspmhal registered with SnapdragonServices, which
+# phone2's vendor qspmhal isn't
+ro.activity_trigger.enable=false
+
 # Bluetooth
 persist.bluetooth.bqr.event_mask=0x8000000E
 persist.bluetooth.bqr.min_interval_ms=6000

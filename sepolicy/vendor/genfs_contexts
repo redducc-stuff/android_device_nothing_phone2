@@ -5,12 +5,7 @@ genfscon sysfs /devices/platform/soc/soc:qcom,dsi-display-primary/force_fod_ui  
 genfscon sysfs /class/qcom-battery/scenario_fcc                      u:object_r:vendor_sysfs_usb_supply:s0
 
 # Extcon
-genfscon sysfs /devices/platform/soc/soc:spf_core_platform/soc:spf_core_platform:lpass-cdc/wcd938x-codec/extcon/extcon3/cable.0/name   u:object_r:sysfs_extcon:s0
-genfscon sysfs /devices/platform/soc/soc:spf_core_platform/soc:spf_core_platform:lpass-cdc/wcd938x-codec/extcon/extcon3/cable.1/name   u:object_r:sysfs_extcon:s0
-genfscon sysfs /devices/platform/soc/soc:spf_core_platform/soc:spf_core_platform:lpass-cdc/wcd938x-codec/extcon/extcon3/cable.2/name   u:object_r:sysfs_extcon:s0
-genfscon sysfs /devices/platform/soc/soc:spf_core_platform/soc:spf_core_platform:lpass-cdc/wcd938x-codec/extcon/extcon3/cable.3/name   u:object_r:sysfs_extcon:s0
-genfscon sysfs /devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/extcon/extcon4/cable.0/name   u:object_r:sysfs_extcon:s0
-genfscon sysfs /devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/extcon/extcon4/cable.1/name   u:object_r:sysfs_extcon:s0
+genfscon sysfs /devices/platform/soc/soc:spf_core_platform/soc:spf_core_platform:lpass-cdc/wcd938x-codec/extcon   u:object_r:sysfs_extcon:s0
 
 # Gestures
 genfscon sysfs /devices/platform/goodix_ts.0/fp_state               u:object_r:vendor_sysfs_sensors:s0
@@ -42,7 +37,6 @@ genfscon sysfs /devices/platform/soc/soc:goodix_fp@0/wakeup u:object_r:sysfs_wak
 genfscon sysfs /devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,ucsi/power_supply/ucsi-source-psy-soc:qcom,pmic_glink:qcom,ucsi1/wakeup u:object_r:sysfs_wakeup:s0
 genfscon sysfs /devices/virtual/fastrpc/adsprpc-smd-secure/wakeup u:object_r:sysfs_wakeup:s0
 genfscon sysfs /devices/virtual/fastrpc/adsprpc-smd/wakeup u:object_r:sysfs_wakeup:s0
-genfscon sysfs /devices/virtual/input/input4/wakeup u:object_r:sysfs_wakeup:s0
 
 # LEDs (6.6 nests the QUP i2c buses under the qupv3 wrapper)
 genfscon sysfs /devices/platform/soc/9c0000.qcom,qupv3_0_geni_se/994000.i2c/i2c-0/0-003a/leds/led_strips u:object_r:sysfs_leds:s0
@@ -54,4 +48,33 @@ genfscon sysfs /devices/virtual/misc/fastrpc-cdsp/wakeup u:object_r:sysfs_wakeup
 genfscon sysfs /devices/virtual/misc/fastrpc-cdsp-secure/wakeup u:object_r:sysfs_wakeup:s0
 genfscon sysfs /devices/virtual/misc/fastrpc-sdsp/wakeup u:object_r:sysfs_wakeup:s0
 genfscon sysfs /devices/virtual/misc/fastrpc-sdsp-secure/wakeup u:object_r:sysfs_wakeup:s0
-genfscon sysfs /devices/virtual/input/input5/wakeup u:object_r:sysfs_wakeup:s0
+
+# 6.12 sysfs paths
+genfscon sysfs /devices/platform/soc/8c0000.qcom,qupv3_2_geni_se/88c000.i2c/i2c-3/3-005a/leds/aw_vibrator   u:object_r:sysfs_vibrator:s0
+genfscon sysfs /devices/platform/soc/c400000.spmi/spmi-0/0-02/c42d000.spmi:qcom,pm8350c@2:pwms@e800/leds   u:object_r:sysfs_leds:s0
+genfscon sysfs /devices/platform/soc/c400000.spmi/spmi-0/0-02/c42d000.spmi:qcom,pm8350c@2:qcom,flash_led@ee00/leds   u:object_r:sysfs_leds:s0
+genfscon sysfs /devices/platform/soc/ae00000.qcom,mdss_mdp/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/ae00000.qcom,mdss_mdp/drm/card0/card0-sde-crtc-0/measured_fps   u:object_r:vendor_sysfs_graphics:s0
+genfscon sysfs /devices/platform/soc/ae00000.qcom,mdss_mdp/drm/card0/card0-sde-crtc-1/measured_fps   u:object_r:vendor_sysfs_graphics:s0
+genfscon sysfs /devices/platform/soc/ae00000.qcom,mdss_mdp/drm/card0/card0-sde-crtc-2/measured_fps   u:object_r:vendor_sysfs_graphics:s0
+genfscon sysfs /devices/platform/soc/c400000.spmi/spmi-0/0-00/c42d000.spmi:qcom,pmk8350@0:pon@1300/c42d000.spmi:qcom,pmk8350@0:pon@1300:pwrkey/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/c400000.spmi/spmi-0/0-00/c42d000.spmi:qcom,pmk8350@0:pon@1300/c42d000.spmi:qcom,pmk8350@0:pon@1300:resin/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/c400000.spmi/spmi-0/0-00/c42d000.spmi:qcom,pmk8350@0:rtc@6100/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/c400000.spmi/spmi-0/0-00/c42d000.spmi:qcom,pmk8350@0:rtc@6100/rtc/rtc0/alarmtimer.1.auto/wakeup   u:object_r:sysfs_wakeup:s0
+# Touchscreen's virtual input wakeup source; its input number follows probe order
+genfscon sysfs /devices/virtual/input/input0/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input1/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input2/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input3/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input4/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input5/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input6/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input7/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input8/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input9/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input10/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input11/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input12/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input13/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input14/wakeup   u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/virtual/input/input15/wakeup   u:object_r:sysfs_wakeup:s0

@@ -5,7 +5,7 @@
 
 # Nothing's shell temperature service: fits skin temperatures from the board thermistors and
 # feeds them to the simulated NTC zones through /proc/shell-temp
-type sltntc, domain, coredomain;
+typeattribute sltntc coredomain;
 type sltntc_exec, system_file_type, exec_type, file_type;
 type sltntc_service, service_manager_type;
 type proc_simulated_temp, fs_type, proc_type;
