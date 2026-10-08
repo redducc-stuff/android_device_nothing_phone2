@@ -205,4 +205,6 @@ on property:sys.boot_completed=1
     start  vendor.qvirtmgr
     # Metroid's gatekeeper opens its keymaster TA session at start, and a session opened
     # while other TAs load at early boot fails every verify with -22 until restarted.
+    # gatekeeperd binds the HAL once and never reconnects, so it has to follow.
     restart vendor.gatekeeper_default
+    restart gatekeeperd
