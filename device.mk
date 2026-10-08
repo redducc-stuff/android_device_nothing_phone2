@@ -114,7 +114,8 @@ PRODUCT_SET_DEBUGFS_RESTRICTIONS := true
 
 # Display
 PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/configs/displayconfig/display_id_4630946639017191809.xml:$(TARGET_COPY_OUT_VENDOR)/etc/displayconfig/display_id_4630946639017191809.xml
+    $(DEVICE_PATH)/configs/displayconfig/display_id_4630946639017191809.xml:$(TARGET_COPY_OUT_VENDOR)/etc/displayconfig/display_id_4630946639017191809.xml \
+    $(DEVICE_PATH)/configs/displayconfig/display_id_4630946639017191809.xml:$(TARGET_COPY_OUT_VENDOR)/etc/displayconfig/display_id_4630946639017191826.xml
 
 PRODUCT_PACKAGES += \
     vendor.qti.hardware.memtrack-service
