@@ -1,0 +1,14 @@
+//
+// Copyright (C) 2026 The PenguinOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+cc_library_shared {
+    name: "libdiracaidl",
+    defaults: ["aidlaudioeffectserviceqti_defaults"],
+    relative_install_path: "soundfx",
+    vendor: true,
+    srcs: ["DiracAidl.cpp"],
+    header_libs: ["libhardware_headers"],
+    static_libs: ["libaudioeffecthal_base_impl_static"],
+}

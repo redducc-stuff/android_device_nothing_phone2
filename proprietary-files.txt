@@ -683,6 +683,12 @@ vendor/etc/init/ssgtzd.rc
 vendor/lib64/libdiagjni.so
 vendor/lib64/libqsocket.so
 
+# Dirac
+vendor/etc/dirac/dirac_resource.dar
+vendor/etc/dirac/interface.json
+vendor/lib64/libdirac.so
+vendor/lib64/soundfx/libdiraceffect_NT.so
+
 # Display (Calibration Data)
 vendor/etc/display/qdcm_calib_data_nt37705_amoled_fhd+_120hz_cmd_mode_dsi_visionox_panel.json
 

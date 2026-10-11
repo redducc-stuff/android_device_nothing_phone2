@@ -58,6 +58,7 @@ TARGET_BOOTLOADER_BOARD_NAME := taro
 
 # Audio
 PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/configs/audio/audio_effects_config.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects_config.xml \
     $(DEVICE_PATH)/configs/audio/audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio/sku_cape/audio_policy_configuration.xml \
     $(DEVICE_PATH)/configs/audio/bluetooth_hearing_aid_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/bluetooth_hearing_aid_audio_policy_configuration.xml \
     $(DEVICE_PATH)/configs/audio/card-defs.xml:$(TARGET_COPY_OUT_VENDOR)/etc/card-defs.xml \
@@ -184,6 +185,10 @@ DEVICE_MANIFEST_FILE += $(DEVICE_PATH)/configs/vintf/manifest_cape.xml
 # Audio
 # Our libmcs predates the 16.2 ar_log ABI; QACT tuning is not needed
 TARGET_AUDIO_FEATURE_MCS := false
+
+# Audio (Dirac)
+PRODUCT_PACKAGES += \
+    libdiracaidl
 
 # Audio (PAL plugins)
 PRODUCT_PACKAGES += \
