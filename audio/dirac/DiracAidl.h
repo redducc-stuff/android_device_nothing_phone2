@@ -17,8 +17,10 @@ class DiracContext final : public EffectContext {
     DiracContext(const Parameter::Common& common, bool processData);
     ~DiracContext();
 
-    bool valid() const { return mHandle != nullptr; }
-    RetCode command(uint32_t cmd, uint32_t size = 0, void* data = nullptr);
+    bool valid() const { return mDesc != nullptr; }
+    void enable();
+    void disable();
+    void release();
     RetCode setCommon(const Parameter::Common& common) override;
     RetCode setOutputDevice(const std::vector<aidl::android::media::audio::common::AudioDeviceDescription>&
                                     devices) override;
@@ -28,7 +30,12 @@ class DiracContext final : public EffectContext {
     IEffect::Status process(float* in, float* out, int samples);
 
   private:
-    RetCode configure(const Parameter::Common& common);
+    bool acquireLocked();
+    void releaseLocked();
+    RetCode commandLocked(uint32_t cmd, uint32_t size = 0, void* data = nullptr);
+    RetCode configureLocked();
+    void applyDeviceLocked();
+    void applyVolumeLocked();
 
     void* mLib = nullptr;
     audio_effect_library_t* mDesc = nullptr;

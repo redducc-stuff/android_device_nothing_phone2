@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <mutex>
 
 #include <aidl/android/hardware/audio/effect/DefaultExtension.h>
 #include <android-base/logging.h>
@@ -105,6 +106,9 @@ const Descriptor DiracAidl::kDescriptor = {
                    .name = DiracAidl::kEffectName,
                    .implementor = "Dirac Audio Effect"}};
 
+static std::mutex gDiracLock;
+static DiracContext* gDiracOwner = nullptr;
+
 DiracContext::DiracContext(const Parameter::Common& common, bool processData)
     : EffectContext(common, processData) {
     mLib = dlopen(kLibrary, RTLD_NOW);
@@ -113,24 +117,59 @@ DiracContext::DiracContext(const Parameter::Common& common, bool processData)
         return;
     }
     mDesc = static_cast<audio_effect_library_t*>(dlsym(mLib, AUDIO_EFFECT_LIBRARY_INFO_SYM_AS_STR));
-    if (mDesc == nullptr || mDesc->create_effect(&kLegacyUuid, common.session, common.ioHandle,
-                                                 &mHandle) != 0) {
-        LOG(ERROR) << "create_effect failed";
-        mHandle = nullptr;
-        return;
-    }
-    if (command(EFFECT_CMD_INIT) != RetCode::SUCCESS || configure(common) != RetCode::SUCCESS) {
-        mDesc->release_effect(mHandle);
-        mHandle = nullptr;
-    }
+    mChannels = getChannelCount(common.input.base.channelMask);
 }
 
 DiracContext::~DiracContext() {
-    if (mHandle != nullptr) mDesc->release_effect(mHandle);
+    release();
     if (mLib != nullptr) dlclose(mLib);
 }
 
-RetCode DiracContext::command(uint32_t cmd, uint32_t size, void* data) {
+bool DiracContext::acquireLocked() {
+    if (mDesc == nullptr) return false;
+    if (gDiracOwner != nullptr && gDiracOwner != this) return false;
+    if (mHandle != nullptr) return true;
+    if (mDesc->create_effect(&kLegacyUuid, mCommon.session, mCommon.ioHandle, &mHandle) != 0) {
+        mHandle = nullptr;
+        return false;
+    }
+    gDiracOwner = this;
+    if (commandLocked(EFFECT_CMD_INIT) != RetCode::SUCCESS ||
+        configureLocked() != RetCode::SUCCESS) {
+        releaseLocked();
+        return false;
+    }
+    applyDeviceLocked();
+    applyVolumeLocked();
+    return true;
+}
+
+void DiracContext::releaseLocked() {
+    if (mHandle != nullptr) {
+        mDesc->release_effect(mHandle);
+        mHandle = nullptr;
+    }
+    if (gDiracOwner == this) gDiracOwner = nullptr;
+}
+
+void DiracContext::release() {
+    std::lock_guard lock(gDiracLock);
+    releaseLocked();
+}
+
+void DiracContext::enable() {
+    std::lock_guard lock(gDiracLock);
+    if (acquireLocked()) commandLocked(EFFECT_CMD_ENABLE);
+}
+
+void DiracContext::disable() {
+    std::lock_guard lock(gDiracLock);
+    if (mHandle == nullptr) return;
+    commandLocked(EFFECT_CMD_DISABLE);
+    releaseLocked();
+}
+
+RetCode DiracContext::commandLocked(uint32_t cmd, uint32_t size, void* data) {
     if (mHandle == nullptr) return RetCode::ERROR_ILLEGAL_PARAMETER;
     int32_t reply = 0;
     uint32_t replySize = sizeof(reply);
@@ -142,55 +181,69 @@ RetCode DiracContext::command(uint32_t cmd, uint32_t size, void* data) {
     return RetCode::SUCCESS;
 }
 
-RetCode DiracContext::configure(const Parameter::Common& common) {
-    mChannels = getChannelCount(common.input.base.channelMask);
+RetCode DiracContext::configureLocked() {
     effect_config_t config = {};
     for (buffer_config_t* cfg : {&config.inputCfg, &config.outputCfg}) {
-        cfg->samplingRate = common.input.base.sampleRate;
+        cfg->samplingRate = mCommon.input.base.sampleRate;
         cfg->channels = audio_channel_out_mask_from_count(mChannels);
         cfg->format = AUDIO_FORMAT_PCM_FLOAT;
         cfg->accessMode = EFFECT_BUFFER_ACCESS_WRITE;
         cfg->mask = EFFECT_CONFIG_ALL;
     }
     config.inputCfg.accessMode = EFFECT_BUFFER_ACCESS_READ;
-    return command(EFFECT_CMD_SET_CONFIG, sizeof(config), &config);
+    return commandLocked(EFFECT_CMD_SET_CONFIG, sizeof(config), &config);
 }
 
-RetCode DiracContext::setCommon(const Parameter::Common& common) {
-    RetCode ret = EffectContext::setCommon(common);
-    if (ret != RetCode::SUCCESS) return ret;
-    return configure(common);
-}
-
-RetCode DiracContext::setOutputDevice(const std::vector<AudioDeviceDescription>& devices) {
-    mOutputDevice = devices;
+void DiracContext::applyDeviceLocked() {
     uint32_t device = AUDIO_DEVICE_NONE;
-    for (const auto& d : devices) device |= toLegacy(d);
-    if (mHandle == nullptr) return RetCode::SUCCESS;
+    for (const auto& d : mOutputDevice) device |= toLegacy(d);
     uint32_t replySize = 0;
     (*mHandle)->command(mHandle, EFFECT_CMD_SET_DEVICE, sizeof(device), &device, &replySize,
                         nullptr);
+}
+
+void DiracContext::applyVolumeLocked() {
+    uint32_t vol[2] = {
+            static_cast<uint32_t>(std::clamp(mVolumeStereo.left, 0.f, 1.f) * (1 << 24)),
+            static_cast<uint32_t>(std::clamp(mVolumeStereo.right, 0.f, 1.f) * (1 << 24))};
+    uint32_t reply[2] = {vol[0], vol[1]};
+    uint32_t replySize = sizeof(reply);
+    (*mHandle)->command(mHandle, EFFECT_CMD_SET_VOLUME, sizeof(vol), vol, &replySize, reply);
+}
+
+RetCode DiracContext::setCommon(const Parameter::Common& common) {
+    std::lock_guard lock(gDiracLock);
+    RetCode ret = EffectContext::setCommon(common);
+    if (ret != RetCode::SUCCESS) return ret;
+    mChannels = getChannelCount(common.input.base.channelMask);
+    if (mHandle != nullptr) configureLocked();
+    return RetCode::SUCCESS;
+}
+
+RetCode DiracContext::setOutputDevice(const std::vector<AudioDeviceDescription>& devices) {
+    std::lock_guard lock(gDiracLock);
+    mOutputDevice = devices;
+    if (mHandle != nullptr) applyDeviceLocked();
     return RetCode::SUCCESS;
 }
 
 RetCode DiracContext::setVolumeStereo(const Parameter::VolumeStereo& volume) {
+    std::lock_guard lock(gDiracLock);
     mVolumeStereo = volume;
-    if (mHandle == nullptr) return RetCode::SUCCESS;
-    uint32_t vol[2] = {static_cast<uint32_t>(std::clamp(volume.left, 0.f, 1.f) * (1 << 24)),
-                       static_cast<uint32_t>(std::clamp(volume.right, 0.f, 1.f) * (1 << 24))};
-    uint32_t reply[2] = {vol[0], vol[1]};
-    uint32_t replySize = sizeof(reply);
-    (*mHandle)->command(mHandle, EFFECT_CMD_SET_VOLUME, sizeof(vol), vol, &replySize, reply);
+    if (mHandle != nullptr) applyVolumeLocked();
     return RetCode::SUCCESS;
 }
 
 RetCode DiracContext::setParam(const std::vector<uint8_t>& bytes) {
     if (bytes.size() < sizeof(effect_param_t)) return RetCode::ERROR_ILLEGAL_PARAMETER;
+    std::lock_guard lock(gDiracLock);
+    if (mHandle == nullptr) return RetCode::SUCCESS;
     std::vector<uint8_t> data(bytes);
-    return command(EFFECT_CMD_SET_PARAM, data.size(), data.data());
+    return commandLocked(EFFECT_CMD_SET_PARAM, data.size(), data.data());
 }
 
 RetCode DiracContext::getParam(std::vector<uint8_t>& bytes) {
+    std::lock_guard lock(gDiracLock);
     if (mHandle == nullptr || bytes.size() < sizeof(effect_param_t)) {
         return RetCode::ERROR_ILLEGAL_PARAMETER;
     }
@@ -210,7 +263,8 @@ RetCode DiracContext::getParam(std::vector<uint8_t>& bytes) {
 }
 
 IEffect::Status DiracContext::process(float* in, float* out, int samples) {
-    if (mHandle != nullptr && mChannels > 0) {
+    std::lock_guard lock(gDiracLock);
+    if (mHandle != nullptr && gDiracOwner == this && mChannels > 0) {
         audio_buffer_t inBuf = {.frameCount = samples / mChannels, .f32 = in};
         audio_buffer_t outBuf = {.frameCount = samples / mChannels, .f32 = out};
         int ret = (*mHandle)->process(mHandle, &inBuf, &outBuf);
@@ -257,10 +311,10 @@ ndk::ScopedAStatus DiracAidl::commandImpl(CommandId id) {
     RETURN_IF(!mContext, EX_NULL_POINTER, "nullContext");
     switch (id) {
         case CommandId::START:
-            mContext->command(EFFECT_CMD_ENABLE);
+            mContext->enable();
             break;
         case CommandId::STOP:
-            mContext->command(EFFECT_CMD_DISABLE);
+            mContext->disable();
             break;
         case CommandId::RESET:
             mContext->resetBuffer();
@@ -282,6 +336,7 @@ std::shared_ptr<EffectContext> DiracAidl::createContext(const Parameter::Common&
 }
 
 RetCode DiracAidl::releaseContext() {
+    if (mContext) mContext->release();
     mContext.reset();
     return RetCode::SUCCESS;
 }
