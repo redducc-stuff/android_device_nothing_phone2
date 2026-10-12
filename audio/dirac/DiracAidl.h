@@ -41,6 +41,7 @@ class DiracContext final : public EffectContext {
     audio_effect_library_t* mDesc = nullptr;
     effect_handle_t mHandle = nullptr;
     size_t mChannels = 2;
+    bool mBypass = false;
 };
 
 class DiracAidl final : public EffectImpl {

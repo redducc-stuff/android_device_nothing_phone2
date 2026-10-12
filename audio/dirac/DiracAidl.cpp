@@ -223,6 +223,9 @@ RetCode DiracContext::setCommon(const Parameter::Common& common) {
 RetCode DiracContext::setOutputDevice(const std::vector<AudioDeviceDescription>& devices) {
     std::lock_guard lock(gDiracLock);
     mOutputDevice = devices;
+    mBypass = std::any_of(devices.begin(), devices.end(), [](const auto& d) {
+        return d.type != AudioDeviceType::OUT_SPEAKER;
+    });
     if (mHandle != nullptr) applyDeviceLocked();
     return RetCode::SUCCESS;
 }
@@ -264,11 +267,11 @@ RetCode DiracContext::getParam(std::vector<uint8_t>& bytes) {
 
 IEffect::Status DiracContext::process(float* in, float* out, int samples) {
     std::lock_guard lock(gDiracLock);
-    if (mHandle != nullptr && gDiracOwner == this && mChannels > 0) {
+    if (mHandle != nullptr && gDiracOwner == this && mChannels > 0 && !mBypass) {
         audio_buffer_t inBuf = {.frameCount = samples / mChannels, .f32 = in};
         audio_buffer_t outBuf = {.frameCount = samples / mChannels, .f32 = out};
         int ret = (*mHandle)->process(mHandle, &inBuf, &outBuf);
-        if (ret == 0 || ret == -ENODATA) return {STATUS_OK, samples, samples};
+        if (ret == 0) return {STATUS_OK, samples, samples};
     }
     if (in != out) std::copy(in, in + samples, out);
     return {STATUS_OK, samples, samples};
