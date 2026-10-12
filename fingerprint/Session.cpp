@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <chrono>
+#include <string>
 #include <thread>
 
 #include <android-base/file.h>
@@ -17,10 +19,24 @@ namespace aidl::android::hardware::biometrics::fingerprint {
 
 namespace {
 
-constexpr char kFodUiPath[] = "/sys/devices/platform/soc/soc:qcom,dsi-display-primary/force_fod_ui";
+constexpr char kForceFodUiPath[] =
+        "/sys/devices/platform/soc/soc:qcom,dsi-display-primary/force_fod_ui";
+constexpr char kFodUiPath[] = "/sys/devices/platform/soc/soc:qcom,dsi-display-primary/fod_ui";
+constexpr auto kFodUiTimeout = std::chrono::milliseconds(100);
+
+void waitForFodUi() {
+    auto deadline = std::chrono::steady_clock::now() + kFodUiTimeout;
+    std::string value;
+    while (std::chrono::steady_clock::now() < deadline) {
+        if (::android::base::ReadFileToString(kFodUiPath, &value) && value[0] == '1') return;
+        std::this_thread::sleep_for(std::chrono::milliseconds(4));
+    }
+    ALOGW("FOD illumination not ready after %lld ms", (long long)kFodUiTimeout.count());
+}
 
 void setFingerDown(fingerprint_device_t* device, bool down) {
-    ::android::base::WriteStringToFile(down ? "1" : "0", kFodUiPath);
+    ::android::base::WriteStringToFile(down ? "1" : "0", kForceFodUiPath);
+    if (down) waitForFodUi();
     device->goodixExtCmd(device, down ? 1 : 0, 0);
 }
 
