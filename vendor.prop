@@ -61,6 +61,9 @@ ro.incremental.enable=yes
 # Keystore
 ro.hardware.keystore_desede=true
 
+debug.hwui.use_hint_manager=true
+debug.sf.enable_adpf_cpu_hint=true
+
 # Media
 debug.stagefright.c2inputsurface=-1
 media.c2.hal.selection=aidl
